@@ -59,3 +59,160 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+## Laravel 7 Send Email Example
+
+
+#### Step 1: Make Configuration
+
+In first step, you have to add send mail configuration with mail driver, mail host, mail port, mail username, mail password so laravel 7 will use those sender details on email. So you can simply add as like following.
+
+ - .env
+
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=haronurr@gmail.com
+MAIL_PASSWORD=password of haronurr@gmail.com Account
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=haronurr@gmail.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+#### Step 2: Create Mail
+
+In this step we will create mail class SendMail for email sending. Here we will write code for which view will call and object of user. So let's run bellow command.
+
+```
+ php artisan make:mail SendMail
+```
+
+ - app/Mail/SendMail.php
+
+```
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+
+class SendMail extends Mailable
+{
+    use Queueable, SerializesModels;
+    
+    public $details;
+
+    public function __construct($details)
+    {
+        $this->details = $details;
+    }
+
+    public function build()
+    {
+        return $this->subject('Subject: Test Email From Artisan Sorftware Valley')
+                    ->view('emails.sendmail');
+    }
+}
+```
+#### Step 3: Create Controller
+
+In this step we will create Controller class EmailController for email sending. Here we will write code for which view will call and object of user. So let's run bellow command.
+
+```
+ php artisan make:controller EmailController
+```
+
+ - App/Http/Controllers/EmailController.php
+
+```
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use \App\Mail\SendMail;
+
+class EmailController extends Controller
+{
+    public function send_email()
+    {
+     $details = [
+        'title' => 'Title: Artisan Sorftware Valley',
+        'body' => 'Body: This is for testing email using smtp'
+    ];
+   
+    \Mail::to('haronur@gmail.com')->send(new SendMail($details));
+   	return view('emails.thanks');
+    }
+}
+```
+
+#### Step 4: Create Blade View
+
+In this step, we will create blade view file and write email that we want to send. now we just write some dummy text. create bellow files on "emails" folder.
+
+- resources/views/emails/sendmail.blade.php
+```
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Artisan Sorftware Valley</title>
+</head>
+<body>
+    <h1>{{ $details['title'] }}</h1>
+    <p>{{ $details['body'] }}</p>
+    <p>Thank you</p>
+</body>
+</html>
+```
+- resources/views/emails/thanks.blade.php
+```
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Thanks</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="alert alert-success" role="alert">
+		 	Thanks, we will contact you soon
+		</div>
+	 </div>
+</body>
+</html>
+```
+
+#### Step 5: Add Route
+
+Now at last we will create "SendMail" for sending our test email. so let's create bellow web route for testing send email.
+```
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/send', 'EmailController@send_email')->name('send_email');
+```
+Now you can run and check example.
+
+It will send you email, let' see.
+
+#### Run Project:
+```
+php artisan serve
+```
+#### Open Link:
+
+http://localhost:8000/send-mail
+
+### Gmail Security Turn Off First if You want to send from your local PC
+
